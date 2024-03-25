@@ -40,7 +40,10 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+uint32_t last_press_time[3] = {0}; // Array que almacena el tiempo de A1, A2 y A3
 UART_HandleTypeDef huart2;
+uint32_t cont_left = 0;
+uint32_t option = 0;
 
 /* USER CODE BEGIN PV */
 
@@ -61,7 +64,38 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   /* Prevent unused argument(s) compilation warning */
   UNUSED(GPIO_Pin);
 
+  uint32_t current_time = HAL_GetTick();
+  uint8_t index_btn;						// índice del botón preionado
 
+  // Para identificar el botón presionado:
+  if(GPIO_Pin == A1_Pin){
+	  index_btn = 0;
+  }else if(GPIO_Pin == A2_Pin){
+	  index_btn = 1;
+  }else if(GPIO_Pin == A3_Pin){
+	  index_btn = 2;
+  }else{
+	  HAL_UART_Transmit(&huart2, "NULL\r\n", 6,10);
+	  return;
+  }
+
+  // Comprobamos el tiempo de la última pulsación:
+  if(current_time - last_press_time[index_btn] >= 300){
+	  last_press_time[index_btn] = current_time;
+
+	  // Vemos qué botón se pulsó
+	  if(index_btn == 0){
+	 	  cont_left = 6;
+	 	  option = 1;
+	 	  HAL_UART_Transmit(&huart2, "Pin A1\r\n", 8,10);
+	   }
+	   else if(index_btn == 1){
+	 	  HAL_UART_Transmit(&huart2, "Pin A2\r\n", 8,10);
+	   }
+	   else if(index_btn == 2){
+	 	  HAL_UART_Transmit(&huart2, "Pin A3\r\n", 8,10);
+	   }
+  }
 }
 
 // Configuración del hearbeat:
@@ -72,6 +106,21 @@ void heartbeat(void){
 		HAL_GPIO_TogglePin(D4_GPIO_Port, D4_Pin);
 	}
 }
+
+void turn_signal_led_left(void){
+	static left_tick = 0;
+	if(left_tick < HAL_GetTick()){
+		if(cont_left > 0){
+			left_tick =  HAL_GetTick() + 500;
+			HAL_GPIO_TogglePin(D1_GPIO_Port, D1_Pin);
+			cont_left--;
+			//HAL_UART_Transmit(&huart2, "A1 -- \r\n", 8,10);
+		}else{
+		HAL_GPIO_WritePin(D1_GPIO_Port, D1_Pin, 1);
+		}
+	}
+}
+
 
 /* USER CODE END 0 */
 
@@ -114,6 +163,9 @@ int main(void)
   {
     /* USER CODE END WHILE */
 	  heartbeat();
+	  if(option==1){ // Si el botón  es A1
+		  turn_signal_led_left();
+	  }else if(option==2){/* CÓDIGO DEL BOTÓN A2*/}
 
     /* USER CODE BEGIN 3 */
   }
