@@ -64,6 +64,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 }
 
+// Configuración del hearbeat:
+void heartbeat(void){
+	static uint32_t tick = 0;
+	if(tick < HAL_GetTick()){
+		tick = HAL_GetTick() + 1000;
+		HAL_GPIO_TogglePin(D4_GPIO_Port, D4_Pin);
+	}
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -104,6 +113,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+	  heartbeat();
 
     /* USER CODE BEGIN 3 */
   }
