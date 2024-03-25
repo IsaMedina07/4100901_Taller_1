@@ -17,5 +17,5 @@ Funcionales:
 10. Se deben poder identificar los eventos principales del sistema en una consola serial de PC.
 
 Equipo de trabajo:
-  Paulina ... ;
+  Paulina Ruiz Bonilla ;
   Maria Isabel
