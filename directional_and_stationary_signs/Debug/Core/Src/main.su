@@ -1,8 +1,9 @@
-../Core/Src/main.c:62:6:HAL_GPIO_EXTI_Callback	24	static
-../Core/Src/main.c:102:6:heartbeat	8	static
-../Core/Src/main.c:110:6:turn_signal_led_left	8	static
-../Core/Src/main.c:131:5:main	8	static
-../Core/Src/main.c:179:6:SystemClock_Config	96	static
-../Core/Src/main.c:224:13:MX_USART2_UART_Init	8	static
-../Core/Src/main.c:259:13:MX_GPIO_Init	40	static
-../Core/Src/main.c:323:6:Error_Handler	4	static,ignoring_inline_asm
+../Core/Src/main.c:65:6:HAL_GPIO_EXTI_Callback	24	static
+../Core/Src/main.c:107:6:heartbeat	8	static
+../Core/Src/main.c:115:6:turn_signal_led_left	8	static
+../Core/Src/main.c:129:6:turn_signal_led_right	8	static
+../Core/Src/main.c:149:5:main	8	static
+../Core/Src/main.c:198:6:SystemClock_Config	96	static
+../Core/Src/main.c:243:13:MX_USART2_UART_Init	8	static
+../Core/Src/main.c:278:13:MX_GPIO_Init	40	static
+../Core/Src/main.c:342:6:Error_Handler	4	static,ignoring_inline_asm

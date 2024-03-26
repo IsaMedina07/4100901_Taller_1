@@ -40,10 +40,13 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+UART_HandleTypeDef huart2;
 uint32_t last_press_time[3] = {0}; // Array que almacena el tiempo de A1, A2 y A3
 UART_HandleTypeDef huart2;
 uint32_t cont_left = 0;
+uint32_t cont_right = 0;
 uint32_t option = 0;
+
 
 /* USER CODE BEGIN PV */
 
@@ -90,6 +93,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	 	  HAL_UART_Transmit(&huart2, "Pin A1\r\n", 8,10);
 	   }
 	   else if(index_btn == 1){
+		   cont_right = 6;
+		   option = 2;
 	 	  HAL_UART_Transmit(&huart2, "Pin A2\r\n", 8,10);
 	   }
 	   else if(index_btn == 2){
@@ -121,6 +126,19 @@ void turn_signal_led_left(void){
 	}
 }
 
+void turn_signal_led_right(void){
+	static right_tick = 0;
+	if(right_tick < HAL_GetTick()){
+		if(cont_right > 0){
+			right_tick =  HAL_GetTick() + 500;
+			HAL_GPIO_TogglePin(D2_GPIO_Port, D2_Pin);
+			cont_right--;
+			//HAL_UART_Transmit(&huart2, "A1 -- \r\n", 8,10);
+		}else{
+		HAL_GPIO_WritePin(D2_GPIO_Port, D2_Pin, 1);
+		}
+	}
+}
 
 /* USER CODE END 0 */
 
@@ -163,10 +181,11 @@ int main(void)
   {
     /* USER CODE END WHILE */
 	  heartbeat();
-	  if(option==1){ // Si el botón  es A1
-		  turn_signal_led_left();
-	  }else if(option==2){/* CÓDIGO DEL BOTÓN A2*/}
-
+	  	  if(option==1){ // Si el botón  es A1
+	  		  turn_signal_led_left();
+	  	  } else if(option==2){
+	  		  turn_signal_led_right();
+	  	  }
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
