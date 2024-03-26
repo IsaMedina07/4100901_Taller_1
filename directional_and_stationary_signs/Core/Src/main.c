@@ -89,12 +89,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	  // Vemos qué botón se pulsó
 	  if(index_btn == 0){
 	 	  cont_left = 6;
-	 	  option = 1;
+	 	  cont_right = 0;
 	 	  HAL_UART_Transmit(&huart2, "Pin A1\r\n", 8,10);
 	   }
 	   else if(index_btn == 1){
 		   cont_right = 6;
-		   option = 2;
+		   cont_left = 0;
 	 	  HAL_UART_Transmit(&huart2, "Pin A2\r\n", 8,10);
 	   }
 	   else if(index_btn == 2){
@@ -181,11 +181,9 @@ int main(void)
   {
     /* USER CODE END WHILE */
 	  heartbeat();
-	  	  if(option==1){ // Si el botón  es A1
-	  		  turn_signal_led_left();
-	  	  } else if(option==2){
-	  		  turn_signal_led_right();
-	  	  }
+	  	  
+    turn_signal_led_left();
+    turn_signal_led_right();
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
