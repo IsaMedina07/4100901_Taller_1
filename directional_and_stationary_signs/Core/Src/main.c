@@ -109,23 +109,44 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 			  }
 		  }else {
 		      //Si no se realizó la doble pulsación :
-
-			  //1.	Registrar el tiempo de la última pulsación
 			  last_double_press = current_double_time;
-			  //2.	Tanto las variables rightLightBlinking y leftLightBlinking se "falsean" (Para detener la direccional indefinida)
-			  rightLightBlinking = false;
-			  leftLightBlinking = false;
 
-			  //3. 	Se continúa con el código de encender las estacionarias tres veces:
-			  if(index_btn == 0){
-				  cont_left = 6;
-				  cont_right = 0; // Para parar el derecho cuando se presione el izquierdo
-				  HAL_UART_Transmit(&huart2, "Direccional izquierda\r\n", 23,10);
-			  }else if(index_btn == 1){
-				   cont_right = 6;
-				   cont_left = 0; // Para parar el izquierdo cuando se presione el derecho
-			 	  HAL_UART_Transmit(&huart2, "Direccional derecha\r\n", 21,10);
-			   }
+			  // Vemos si alguna variable de doble pulsación está activada para desactivarla:
+			  if(rightLightBlinking || leftLightBlinking){
+
+				  // Lógica para las direccionales de forma indefinida:
+
+				  // Si la direccional derecha está encendida y se oprime el botón izquierdo:
+				  if(index_btn == 0 && rightLightBlinking){
+					  // Se apaga completamente la direccional derecha
+					  rightLightBlinking = false;
+					  cont_right = 0;
+					  HAL_UART_Transmit(&huart2, "Apagado de la direccional indefinida Derecha\r\n", 46,10);
+				  }
+				  // Si la direccional izquierda está encendida y se oprime el botón derecho:
+				  else if(index_btn == 1 && leftLightBlinking){
+					  // Se apaga completamente la direccional izquierda
+					  leftLightBlinking = false;
+					  cont_left = 0;
+					  HAL_UART_Transmit(&huart2, "Apagado de la direccional indefinida Izquierda\r\n", 48,10);
+				  }
+				  /*
+				  de lo contrario no se realiza ninguna acción y se mantiene la direccional encendida.
+				  */
+			  }else{
+				  /* Si no hay doble pulsación y no se tienen encendidas las direcionales de forma indefinida
+				   * se realizan las acciones de las direccionales de forma "normal", se encienden tres veces.
+				   */
+				  if(index_btn == 0){
+					  cont_left = 6;
+					  cont_right = 0; // Para parar el derecho cuando se presione el izquierdo
+					  HAL_UART_Transmit(&huart2, "Direccional izquierda\r\n", 23,10);
+				  }else if(index_btn == 1){
+					   cont_right = 6;
+					   cont_left = 0; // Para parar el izquierdo cuando se presione el derecho
+					  HAL_UART_Transmit(&huart2, "Direccional derecha\r\n", 21,10);
+				  }
+			  }
 		    }
 	  }
 	   else{
