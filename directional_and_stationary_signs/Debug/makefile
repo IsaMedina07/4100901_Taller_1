@@ -60,8 +60,8 @@ all: main-build
 main-build: directional_and_stationary_signs.elf secondary-outputs
 
 # Tool invocations
-directional_and_stationary_signs.elf directional_and_stationary_signs.map: $(OBJS) $(USER_OBJS) C:\GitHub\4100901_Taller_1\directional_and_stationary_signs\STM32L476RGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "directional_and_stationary_signs.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\GitHub\4100901_Taller_1\directional_and_stationary_signs\STM32L476RGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="directional_and_stationary_signs.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+directional_and_stationary_signs.elf directional_and_stationary_signs.map: $(OBJS) $(USER_OBJS) C:\Users\isabe\STM32CubeIDE\workspace_1.13.1\directional_and_stationary_signs\STM32L476RGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "directional_and_stationary_signs.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\isabe\STM32CubeIDE\workspace_1.13.1\directional_and_stationary_signs\STM32L476RGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="directional_and_stationary_signs.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include <stdbool.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -41,11 +42,14 @@
 
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart2;
-uint32_t last_press_time[3] = {0}; // Array que almacena el tiempo de A1, A2 y A3
-UART_HandleTypeDef huart2;
+uint32_t last_press_time[3] = {0}; 	// Array que almacena el tiempo de A1, A2 y A3
+bool leftLightBlinking = false;		// Variable que indica si oprimieron dos veces o no la direccional izquierda
+bool rightLightBlinking = false;	// Variable que indica si oprimieron dos veces o no la direccional derecha
+uint32_t last_double_press = 0;		// Último registro de doble pulsación
+
+// Contadores para las veces que las direccionales van a parpadear
 uint32_t cont_left = 0;
 uint32_t cont_right = 0;
-uint32_t option = 0;
 
 
 /* USER CODE BEGIN PV */
@@ -67,7 +71,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   /* Prevent unused argument(s) compilation warning */
   UNUSED(GPIO_Pin);
 
-  uint32_t current_time = HAL_GetTick();
+  uint32_t current_time = HAL_GetTick();	// Tiempo transcurrido de la última pulsación
   uint8_t index_btn;						// índice del botón preionado
 
   // Para identificar el botón presionado:
@@ -82,23 +86,50 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	  return;
   }
 
-  // Comprobamos el tiempo de la última pulsación:
-  if(current_time - last_press_time[index_btn] >= 300){
-	  last_press_time[index_btn] = current_time;
+  // Comprobamos el tiempo de la última pulsación (Que no se pase de 200ms para evitar el ruido, el "rebote"):
+  if(current_time - last_press_time[index_btn] > 200){
+	  last_press_time[index_btn] = current_time; // Actualiza el tiempo
 
-	  // Vemos qué botón se pulsó
-	  if(index_btn == 0){
-	 	  cont_left = 6;
-	 	  cont_right = 0;
-	 	  HAL_UART_Transmit(&huart2, "Pin A1\r\n", 8,10);
-	   }
-	   else if(index_btn == 1){
-		   cont_right = 6;
-		   cont_left = 0;
-	 	  HAL_UART_Transmit(&huart2, "Pin A2\r\n", 8,10);
-	   }
-	   else if(index_btn == 2){
-	 	  HAL_UART_Transmit(&huart2, "Pin A3\r\n", 8,10);
+
+	  // Vemos si se ha oprimido alguna direccional (izquierda o derecha):
+	  if(index_btn == 0 || index_btn == 1){
+		  uint32_t current_double_time = HAL_GetTick(); // Tiempo de las dobles pulsaciones
+
+		  // Revisamos si no se realizó dos veces la última pulsación en un tiempo menor o igual a los 300ms
+		  if (current_double_time - last_double_press <= 300) {
+			  // Si se realizó la doble pulsación :
+			  if (index_btn == 0) {
+			      leftLightBlinking = true;		// Encendemos indefinidamente la direccional izquierda
+			      rightLightBlinking = false;	// Apagamos la derecha si estaba encendida
+			      HAL_UART_Transmit(&huart2, "Intro double Izquierda\r\n", 24,10);
+			  } else {
+				  rightLightBlinking = true;	// Encendemos indefinidamente la direccional derecha
+				  leftLightBlinking = false;	// Apagamos la izquierda si estaba encendida
+				  HAL_UART_Transmit(&huart2, "Intro double Derecha\r\n", 22,10);
+			  }
+		  }else {
+		      //Si no se realizó la doble pulsación :
+
+			  //1.	Registrar el tiempo de la última pulsación
+			  last_double_press = current_double_time;
+			  //2.	Tanto las variables rightLightBlinking y leftLightBlinking se "falsean" (Para detener la direccional indefinida)
+			  rightLightBlinking = false;
+			  leftLightBlinking = false;
+
+			  //3. 	Se continúa con el código de encender las estacionarias tres veces:
+			  if(index_btn == 0){
+				  cont_left = 6;
+				  cont_right = 0; // Para parar el derecho cuando se presione el izquierdo
+				  HAL_UART_Transmit(&huart2, "Direccional izquierda\r\n", 23,10);
+			  }else if(index_btn == 1){
+				   cont_right = 6;
+				   cont_left = 0; // Para parar el izquierdo cuando se presione el derecho
+			 	  HAL_UART_Transmit(&huart2, "Direccional derecha\r\n", 21,10);
+			   }
+		    }
+	  }
+	   else{
+	 	  HAL_UART_Transmit(&huart2, "Estacionarias\r\n", 15,10);
 	   }
   }
 }
@@ -112,14 +143,18 @@ void heartbeat(void){
 	}
 }
 
+
 void turn_signal_led_left(void){
 	static left_tick = 0;
 	if(left_tick < HAL_GetTick()){
-		if(cont_left > 0){
+		if(cont_left > 0 || leftLightBlinking){
 			left_tick =  HAL_GetTick() + 500;
 			HAL_GPIO_TogglePin(D1_GPIO_Port, D1_Pin);
+			/*// Si la direccional se enciende por leftLightBlinking = true,
+			 * el contador no afectará hasta que se le asigne un número mayor a cero
+			 * y leftLightBlinking = false (Lo que pasaría si se oprime solo una vez la direccional).
+			 * Lo mismo pasa con la función de la direccional derecha.*/
 			cont_left--;
-			//HAL_UART_Transmit(&huart2, "A1 -- \r\n", 8,10);
 		}else{
 		HAL_GPIO_WritePin(D1_GPIO_Port, D1_Pin, 1);
 		}
@@ -129,11 +164,10 @@ void turn_signal_led_left(void){
 void turn_signal_led_right(void){
 	static right_tick = 0;
 	if(right_tick < HAL_GetTick()){
-		if(cont_right > 0){
+		if(cont_right > 0 || rightLightBlinking){
 			right_tick =  HAL_GetTick() + 500;
 			HAL_GPIO_TogglePin(D2_GPIO_Port, D2_Pin);
 			cont_right--;
-			//HAL_UART_Transmit(&huart2, "A1 -- \r\n", 8,10);
 		}else{
 		HAL_GPIO_WritePin(D2_GPIO_Port, D2_Pin, 1);
 		}
@@ -180,7 +214,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  heartbeat();
+	heartbeat();
 	  	  
     turn_signal_led_left();
     turn_signal_led_right();
