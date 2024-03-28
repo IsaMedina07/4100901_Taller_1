@@ -51,6 +51,8 @@ uint32_t last_double_press = 0;		// Último registro de doble pulsación
 uint32_t cont_left = 0;
 uint32_t cont_right = 0;
 
+bool status_stationary = false;
+
 
 /* USER CODE BEGIN PV */
 
@@ -91,8 +93,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	  last_press_time[index_btn] = current_time; // Actualiza el tiempo
 
 
-	  // Vemos si se ha oprimido alguna direccional (izquierda o derecha):
-	  if(index_btn == 0 || index_btn == 1){
+	  // Vemos si se ha oprimido alguna direccional (izquierda o derecha) y que las estacionarias no estén encendidas:
+	  if((index_btn == 0 || index_btn == 1) && (!status_stationary)){
 		  uint32_t current_double_time = HAL_GetTick(); // Tiempo de las dobles pulsaciones
 
 		  // Revisamos si no se realizó dos veces la última pulsación en un tiempo menor o igual a los 300ms
@@ -149,8 +151,37 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 			  }
 		    }
 	  }
-	   else{
-	 	  HAL_UART_Transmit(&huart2, "Estacionarias\r\n", 15,10);
+	   else if (index_btn == 2){ // Nos aseguramos de que opriman el A3
+
+		   /* Se reinician las variables
+		    if((rightLightBlinking || leftLightBlinking) || cont_left != 0 || cont_right != 0){
+			   leftLightBlinking = false;
+			   rightLightBlinking = false;
+			   cont_left = 0;
+			   cont_right = 0;
+			   HAL_UART_Transmit(&huart2, "--- INTO ---\r\n", 14,10);
+		   }*/
+
+		   // Se verifica si las estacionarias están encendidas o apagadas:
+		   if(!status_stationary){
+			   /* Si las estacionarias están apagadas, se encienden los dos leds y
+			   se cambia la variable para verificar la siguiente pulsación (el apagado de los leds)*/
+			   status_stationary = true;
+
+			   leftLightBlinking = true;
+			   rightLightBlinking = true;
+			   HAL_UART_Transmit(&huart2, "Stationary ON\r\n", 15,10);
+		   }else{
+			   // Si no están apagadas, están encendidas, por lo que se apaga todos los leds
+			   status_stationary = false;
+
+			   leftLightBlinking = false;
+			   rightLightBlinking = false;
+			   cont_left = 0;
+			   cont_right = 0;
+			   HAL_UART_Transmit(&huart2, "Stationery OFF\r\n", 16,10);
+		   }
+		   //HAL_UART_Transmit(&huart2, "Estacionarias\r\n", 15,10);
 	   }
   }
 }
@@ -163,7 +194,6 @@ void heartbeat(void){
 		HAL_GPIO_TogglePin(D4_GPIO_Port, D4_Pin);
 	}
 }
-
 
 void turn_signal_led_left(void){
 	static left_tick = 0;
@@ -236,7 +266,7 @@ int main(void)
   {
     /* USER CODE END WHILE */
 	heartbeat();
-	  	  
+
     turn_signal_led_left();
     turn_signal_led_right();
     /* USER CODE BEGIN 3 */
