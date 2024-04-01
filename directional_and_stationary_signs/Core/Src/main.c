@@ -150,41 +150,30 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 				  }
 			  }
 		    }
-	  }
-	   else if (index_btn == 2){ // Nos aseguramos de que opriman el A3
+	  }else if (index_btn == 2) {
+	            // Alternar estado de las luces estacionarias
+	            leftLightBlinking = false;
+	            rightLightBlinking = false;
 
-		   /* Se reinician las variables
-		    if((rightLightBlinking || leftLightBlinking) || cont_left != 0 || cont_right != 0){
-			   leftLightBlinking = false;
-			   rightLightBlinking = false;
-			   cont_left = 0;
-			   cont_right = 0;
-			   HAL_UART_Transmit(&huart2, "--- INTO ---\r\n", 14,10);
-		   }*/
-
-		   // Se verifica si las estacionarias están encendidas o apagadas:
-		   if(!status_stationary){
-			   /* Si las estacionarias están apagadas, se encienden los dos leds y
-			   se cambia la variable para verificar la siguiente pulsación (el apagado de los leds)*/
-			   status_stationary = true;
-
-			   leftLightBlinking = true;
-			   rightLightBlinking = true;
-			   HAL_UART_Transmit(&huart2, "Stationary ON\r\n", 15,10);
-		   }else{
-			   // Si no están apagadas, están encendidas, por lo que se apaga todos los leds
-			   status_stationary = false;
-
-			   leftLightBlinking = false;
-			   rightLightBlinking = false;
-			   cont_left = 0;
-			   cont_right = 0;
-			   HAL_UART_Transmit(&huart2, "Stationery OFF\r\n", 16,10);
-		   }
-		   //HAL_UART_Transmit(&huart2, "Estacionarias\r\n", 15,10);
-	   }
+	            // Encender o apagar las luces estacionarias según el estado actual
+	            if (!status_stationary) {
+	                            // Encender las luces estacionarias
+	            	 status_stationary = true;
+	                            leftLightBlinking = true;
+	                            rightLightBlinking = true;
+	                            HAL_UART_Transmit(&huart2, "Stationary ON\r\n", 15, 10);
+	                        } else {
+	                            // Apagar las luces estacionarias
+	                        	status_stationary = false;
+	                            leftLightBlinking = false;
+	                            rightLightBlinking = false;
+	                            cont_left = 0;
+	                            cont_right = 0;
+	                            HAL_UART_Transmit(&huart2, "Stationary OFF\r\n", 16, 10);
+		    }
+		}
   }
-}
+  }
 
 // Configuración del hearbeat:
 void heartbeat(void){
@@ -207,7 +196,7 @@ void turn_signal_led_left(void){
 			 * Lo mismo pasa con la función de la direccional derecha.*/
 			cont_left--;
 		}else{
-		HAL_GPIO_WritePin(D1_GPIO_Port, D1_Pin, 1);
+			HAL_GPIO_WritePin(D1_GPIO_Port, D1_Pin, 1);
 		}
 	}
 }
