@@ -52,9 +52,9 @@ uint32_t cont_left = 0;
 uint32_t cont_right = 0;
 uint32_t into_stationary = 0;
 
-uint8_t index_pines = 0;
+uint8_t index_pines = 0; //índice botónn presionado
 
-bool status_stationary = false;
+bool status_stationary = false; //variable booleana que indica el estado de las luces estacionarias
 
 
 /* USER CODE BEGIN PV */
@@ -94,25 +94,25 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	  return;
   }
 
-  // Comprobamos el tiempo de la última pulsación (Que no se pase de 200ms para evitar el ruido, el "rebote"):
+  // se comprueba el tiempo de la última pulsación (Que no se pase de 200ms para evitar el "rebote"):
   if(current_time - last_press_time[index_btn] > 200){
 	  last_press_time[index_btn] = current_time; // Actualiza el tiempo
 
 
-	  // Vemos si se ha oprimido alguna direccional (izquierda o derecha) y que las estacionarias no estén encendidas:
+	  // Se comprueba si se ha oprimido alguna direccional (izquierda o derecha) y que las estacionarias no estén encendidas:
 	  if((index_btn == 0 || index_btn == 1) && (!status_stationary)){
 		  uint32_t current_double_time = HAL_GetTick(); // Tiempo de las dobles pulsaciones
 
-		  // Revisamos si no se realizó dos veces la última pulsación en un tiempo menor o igual a los 300ms
+		  // Revisión si no se realizó dos veces la última pulsación en un tiempo menor o igual a los 300ms
 		  if (current_double_time - last_double_press <= 300) {
 			  // Si se realizó la doble pulsación :
 			  if (index_btn == 0) {
-			      leftLightBlinking = true;		// Encendemos indefinidamente la direccional izquierda
-			      rightLightBlinking = false;	// Apagamos la derecha si estaba encendida
+			      leftLightBlinking = true;		// Encender indefinidamente la direccional izquierda
+			      rightLightBlinking = false;	// Apagar la derecha si estaba encendida
 			      HAL_UART_Transmit(&huart2, "Intro double Izquierda\r\n", 24,10);
 			  } else {
-				  rightLightBlinking = true;	// Encendemos indefinidamente la direccional derecha
-				  leftLightBlinking = false;	// Apagamos la izquierda si estaba encendida
+				  rightLightBlinking = true;	// Encender indefinidamente la direccional derecha
+				  leftLightBlinking = false;	// Apagar la izquierda si estaba encendida
 				  HAL_UART_Transmit(&huart2, "Intro double Derecha\r\n", 22,10);
 			  }
 		  }else {
@@ -209,6 +209,7 @@ void turn_signal_led_right(void){
 	}
 }
 
+//Se configura el comportamiento de las luces estacionarias.
 void stationary(void){
 	static uint32_t es_tick = 0;
 	if(es_tick < HAL_GetTick()){

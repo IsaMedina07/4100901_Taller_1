@@ -419,7 +419,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
  8000516:	e0ad      	b.n	8000674 <HAL_GPIO_EXTI_Callback+0x1b0>
   }
 
-  // Comprobamos el tiempo de la última pulsación (Que no se pase de 200ms para evitar el ruido, el "rebote"):
+  // se comprueba el tiempo de la última pulsación (Que no se pase de 200ms para evitar el "rebote"):
   if(current_time - last_press_time[index_btn] > 200){
  8000518:	7dfb      	ldrb	r3, [r7, #23]
  800051a:	4a5b      	ldr	r2, [pc, #364]	; (8000688 <HAL_GPIO_EXTI_Callback+0x1c4>)
@@ -435,7 +435,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
  8000530:	f841 2023 	str.w	r2, [r1, r3, lsl #2]
 
 
-	  // Vemos si se ha oprimido alguna direccional (izquierda o derecha) y que las estacionarias no estén encendidas:
+	  // Se comprueba si se ha oprimido alguna direccional (izquierda o derecha) y que las estacionarias no estén encendidas:
 	  if((index_btn == 0 || index_btn == 1) && (!status_stationary)){
  8000534:	7dfb      	ldrb	r3, [r7, #23]
  8000536:	2b00      	cmp	r3, #0
@@ -453,7 +453,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
  8000550:	f000 fbee 	bl	8000d30 <HAL_GetTick>
  8000554:	60f8      	str	r0, [r7, #12]
 
-		  // Revisamos si no se realizó dos veces la última pulsación en un tiempo menor o igual a los 300ms
+		  // Revisión si no se realizó dos veces la última pulsación en un tiempo menor o igual a los 300ms
 		  if (current_double_time - last_double_press <= 300) {
  8000556:	4b4e      	ldr	r3, [pc, #312]	; (8000690 <HAL_GPIO_EXTI_Callback+0x1cc>)
  8000558:	681b      	ldr	r3, [r3, #0]
@@ -466,11 +466,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
  8000564:	7dfb      	ldrb	r3, [r7, #23]
  8000566:	2b00      	cmp	r3, #0
  8000568:	d10c      	bne.n	8000584 <HAL_GPIO_EXTI_Callback+0xc0>
-			      leftLightBlinking = true;		// Encendemos indefinidamente la direccional izquierda
+			      leftLightBlinking = true;		// Encender indefinidamente la direccional izquierda
  800056a:	4b4a      	ldr	r3, [pc, #296]	; (8000694 <HAL_GPIO_EXTI_Callback+0x1d0>)
  800056c:	2201      	movs	r2, #1
  800056e:	701a      	strb	r2, [r3, #0]
-			      rightLightBlinking = false;	// Apagamos la derecha si estaba encendida
+			      rightLightBlinking = false;	// Apagar la derecha si estaba encendida
  8000570:	4b49      	ldr	r3, [pc, #292]	; (8000698 <HAL_GPIO_EXTI_Callback+0x1d4>)
  8000572:	2200      	movs	r2, #0
  8000574:	701a      	strb	r2, [r3, #0]
@@ -483,11 +483,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	  if((index_btn == 0 || index_btn == 1) && (!status_stationary)){
  8000582:	e076      	b.n	8000672 <HAL_GPIO_EXTI_Callback+0x1ae>
 			  } else {
-				  rightLightBlinking = true;	// Encendemos indefinidamente la direccional derecha
+				  rightLightBlinking = true;	// Encender indefinidamente la direccional derecha
  8000584:	4b44      	ldr	r3, [pc, #272]	; (8000698 <HAL_GPIO_EXTI_Callback+0x1d4>)
  8000586:	2201      	movs	r2, #1
  8000588:	701a      	strb	r2, [r3, #0]
-				  leftLightBlinking = false;	// Apagamos la izquierda si estaba encendida
+				  leftLightBlinking = false;	// Apagar la izquierda si estaba encendida
  800058a:	4b42      	ldr	r3, [pc, #264]	; (8000694 <HAL_GPIO_EXTI_Callback+0x1d0>)
  800058c:	2200      	movs	r2, #0
  800058e:	701a      	strb	r2, [r3, #0]
@@ -832,6 +832,7 @@ void turn_signal_led_right(void){
 
 080007b8 <stationary>:
 
+//Se configura el comportamiento de las luces estacionarias.
 void stationary(void){
  80007b8:	b580      	push	{r7, lr}
  80007ba:	af00      	add	r7, sp, #0
