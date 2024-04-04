@@ -34,4 +34,5 @@ This repo contains the impleentation of the directionals and stationary system, 
 **Team members:**
 
   Paulina Ruiz Bonilla.
+  
   Maria Isabel Aristizabal Medina. 
