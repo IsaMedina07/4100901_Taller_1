@@ -1,21 +1,27 @@
-Implemente el sistema de señales direccionales y estacionarias similar al de un carro marca Tesla:
+4100901 - Taller 1 - Embedded Peripherals 
+This repo contains the impleentation of the directionals and stationary system, similar to a Tesla System.
 
-Estos son los requerimientos del sistema:
+Pineout and name configuration of each led and button.
 
-No funcionales:
-1. Tener 3 botones: Giro Izquierda, Giro Derecha, Estacionar.
-2. Tener 3 luces(LEDs): Heartbeat del sistema, Luz Izquierda, Luz Derecha.
-3. Tener un puerto de depuracion con el PC: USART2
+° A1 --> left directional button.
+° A2 --> right directional button. 
+° A3 --> stationary button. 
 
-Funcionales:
-4. Heartbeat con frecuencia de 1Hz para indicar que el sistema esta funcionando.
-5. Si un botón de giro se presiona 1 vez: la luz del lado correspondiente parpadea 3 veces.
-6. Si un botón de giro se presiona 2 veces en menos de 300ms: la luz del lado correspondiente parpadea indefinidamente.
-7. Si un botón de giro se presiona y la luz del otro lado esta activa: se desactiva la luz.
-8. Si se presiona el boton para la señal de estacionamiento: funciona igual que un carro real, ejemplo: Tesla.
-9. La frecuencia de parpadeo de las luces debe ser aceptable según "El Reglamento General de Circulación".
-10. Se deben poder identificar los eventos principales del sistema en una consola serial de PC.
+° D1 --> left directional LED.
+° D2 --> right directional LED.
+° D4 --> heartbeat light.
 
-Equipo de trabajo:
-  Paulina Ruiz Bonilla ;
-  Maria Isabel
+Current functionality
+° Heartbeat (D4 LED) blinks every second. 
+° When A1 button is pressed once: left directional (D1 LED) blinks 3 times.
+° When A1 button is pressed twice in less than 300ms: left directional (D1 LED) blinks indefinitely.
+° If the left light is still blinking and A2 button is pressed, left directional (D1 LED) turns off. 
+° When A2 button is pressed once: righT directtional (D2 LED) blinks 3 times. 
+° When A2 button is pressed twice in less than 300ms: right directional (D2 LED) blinks indefinitely.
+° If the right light is still blinking and A1 button is pressed, right directional (D2 LED) turns off. 
+° When A3 button is pressed, both left and right lights, ie, stationary lights, start blinking indefinitely until A3 button is pressed again. 
+° If one of the directional lights are blinking and A3 button is pressed, both right and left directionals turns on at time and start blinking, like the usual behavior of the stationary lihts. 
+
+Team members:
+  Paulina Ruiz Bonilla.
+  Maria Isabel Aristizabal Medina. 
