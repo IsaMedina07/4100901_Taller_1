@@ -1,7 +1,7 @@
-4100901 - Taller 1 - Embedded Peripherals 
+**4100901 - Taller 1 - Embedded Peripherals** 
 This repo contains the impleentation of the directionals and stationary system, similar to a Tesla System.
 
-Pineout and name configuration of each led and button.
+**Pineout and name configuration of each led and button**
 
 ° A1 --> left directional button.
 ° A2 --> right directional button. 
@@ -11,7 +11,8 @@ Pineout and name configuration of each led and button.
 ° D2 --> right directional LED.
 ° D4 --> heartbeat light.
 
-Current functionality
+**Current functionality**
+
 ° Heartbeat (D4 LED) blinks every second. 
 
 ° When A1 button is pressed once: left directional (D1 LED) blinks 3 times.
@@ -30,6 +31,7 @@ Current functionality
 
 ° If one of the directional lights are blinking and A3 button is pressed, both right and left directionals turns on at time and start blinking, like the usual behavior of the stationary lihts. 
 
-Team members:
+**Team members:**
+
   Paulina Ruiz Bonilla.
   Maria Isabel Aristizabal Medina. 
