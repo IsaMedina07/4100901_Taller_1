@@ -50,6 +50,9 @@ uint32_t last_double_press = 0;		// Último registro de doble pulsación
 // Contadores para las veces que las direccionales van a parpadear
 uint32_t cont_left = 0;
 uint32_t cont_right = 0;
+uint32_t into_stationary = 0;
+
+uint8_t index_pines = 0;
 
 bool status_stationary = false;
 
@@ -79,10 +82,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   // Para identificar el botón presionado:
   if(GPIO_Pin == A1_Pin){
 	  index_btn = 0;
+	  index_pines = 0;
   }else if(GPIO_Pin == A2_Pin){
 	  index_btn = 1;
+	  index_pines = 1;
   }else if(GPIO_Pin == A3_Pin){
 	  index_btn = 2;
+	  index_pines = 2;
   }else{
 	  HAL_UART_Transmit(&huart2, "NULL\r\n", 6,10);
 	  return;
@@ -152,28 +158,17 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		    }
 	  }else if (index_btn == 2) {
 	            // Alternar estado de las luces estacionarias
-	            leftLightBlinking = false;
-	            rightLightBlinking = false;
-
-	            // Encender o apagar las luces estacionarias según el estado actual
-	            if (!status_stationary) {
-	                            // Encender las luces estacionarias
-	            	 status_stationary = true;
-	                            leftLightBlinking = true;
-	                            rightLightBlinking = true;
-	                            HAL_UART_Transmit(&huart2, "Stationary ON\r\n", 15, 10);
-	                        } else {
-	                            // Apagar las luces estacionarias
-	                        	status_stationary = false;
-	                            leftLightBlinking = false;
-	                            rightLightBlinking = false;
-	                            cont_left = 0;
-	                            cont_right = 0;
-	                            HAL_UART_Transmit(&huart2, "Stationary OFF\r\n", 16, 10);
-		    }
+		   if (!status_stationary) {
+			// Encender las luces estacionarias
+			   status_stationary = true;
+			 }else {
+				// Apagar las luces estacionarias
+				status_stationary = false;
+				index_pines = 0;
+			 	}
 		}
-  }
-  }
+  	  }
+ }
 
 // Configuración del hearbeat:
 void heartbeat(void){
@@ -185,7 +180,7 @@ void heartbeat(void){
 }
 
 void turn_signal_led_left(void){
-	static left_tick = 0;
+	static uint32_t left_tick = 0;
 	if(left_tick < HAL_GetTick()){
 		if(cont_left > 0 || leftLightBlinking){
 			left_tick =  HAL_GetTick() + 500;
@@ -202,14 +197,28 @@ void turn_signal_led_left(void){
 }
 
 void turn_signal_led_right(void){
-	static right_tick = 0;
+	static uint32_t right_tick = 0;
 	if(right_tick < HAL_GetTick()){
 		if(cont_right > 0 || rightLightBlinking){
-			right_tick =  HAL_GetTick() + 500;
+			right_tick = HAL_GetTick() + 500;
 			HAL_GPIO_TogglePin(D2_GPIO_Port, D2_Pin);
 			cont_right--;
 		}else{
 		HAL_GPIO_WritePin(D2_GPIO_Port, D2_Pin, 1);
+		}
+	}
+}
+
+void stationary(void){
+	static uint32_t es_tick = 0;
+	if(es_tick < HAL_GetTick()){
+		if(status_stationary){
+			es_tick =  HAL_GetTick() + 500;
+			HAL_GPIO_TogglePin(D1_GPIO_Port, D1_Pin);
+			HAL_GPIO_TogglePin(D2_GPIO_Port, D2_Pin);
+		}else{
+			HAL_GPIO_WritePin(D1_GPIO_Port, D1_Pin, 1);
+			HAL_GPIO_WritePin(D2_GPIO_Port, D2_Pin, 1);
 		}
 	}
 }
@@ -254,10 +263,15 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	heartbeat();
+	  heartbeat();
 
-    turn_signal_led_left();
-    turn_signal_led_right();
+	  	if(index_pines == 2){
+	  		stationary();
+	  		HAL_UART_Transmit(&huart2, "Into\r\n", 6,10);
+	  	}else{
+	      turn_signal_led_left();
+	      turn_signal_led_right();
+	  	}
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
