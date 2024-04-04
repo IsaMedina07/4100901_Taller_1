@@ -1,7 +1,8 @@
 **4100901 - Taller 1 - Embedded Peripherals** 
-This repo contains the impleentation of the directionals and stationary system, similar to a Tesla System.
 
-**Pineout and name configuration of each led and button**
+This repo contains the implementation of the directionals and stationary system, similar to a Tesla System.
+
+**Name configuration of each led and button**
 
 ° A1 --> left directional button.
 ° A2 --> right directional button. 
